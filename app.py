@@ -68,17 +68,17 @@ def index():
 
 @app.route('/review', methods=['GET', 'POST'])
 def review():
-    tobereviewed = []
-    for item in currentblock.transactions:
-        if item['features'] is not None:
-            tobereviewed.append(item)
-        else:
-            pass
-    return render_template('review.html', tobereviewed = tobereviewed)
+    if request.method == 'GET':
+        tobereviewed = []
+        for item in currentblock.transactions:
+            if item['features'] is not None:
+                tobereviewed.append(item)
+            else:
+                return render_template('survey.html')
 
-# @app.route('/review_transaction', methods=['GET', 'POST'])
-# def review():
-#     for item in currentBlock.transactions
+        return render_template('review.html', tobereviewed = tobereviewed)
+    if request.method == 'POST':
+        return 'save will happen here'
 
 @app.route('/transactions/new', methods=['GET', 'POST'])
 def newTransaction():

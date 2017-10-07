@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Survey</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  </head>
+  <body class="jumbotron">
+    <form class="container" action="{{url_for('review')}}" method="POST">
+      <div class="">
+        ABS: <br>
+        <input type="radio" name="abs" value="1">Yes <br>
+        <input type="radio" name="abs" value="0">No
+      </div>
+      <div class="">
+        Powersteering: <br>
+        <input type="radio" name="powersteering" value="1">Yes <br>
+        <input type="radio" name="powersteering" value="0">No
+      </div>
+      <div class="">
+        Powerwindow: <br>
+        <input type="radio" name="powerwindow" value="1">Yes <br>
+        <input type="radio" name="powerwindow" value="0">No
+      </div>
+      <div class="">
+        AC/Non AC: <br>
+        <input type="radio" name="ac" value="1">Yes <br>
+        <input type="radio" name="ac" value="0">No
+      </div>
+      <button type="submit" name="button" class="btn btn-primary">Submit</button>
+    </form>
+  </body>
+</html>
