@@ -7,7 +7,11 @@
   </head>
   <body class="jumbotron">
     <div class="container">
-    <p>{{current_no}}</p>
+        <ul class="list-group">
+          {% for item in current_trans %}
+          <li class="list-group-item">{{item}}<button type="button" class="btn-default btn"><a href="{{url_for('review', id = item['order_id'])}}">Review</a></button></li>
+          {% endfor %}
+        </ul>
       <button type="button" class="btn-default btn"><a href="{{url_for('newTransaction')}}">New Transaction</a></button>
       <button type="button" name="reviewBtn" class="btn btn-default"><a href="{{url_for('review')}}">Review</a></button>
     </div>
