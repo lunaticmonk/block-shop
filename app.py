@@ -48,7 +48,7 @@ class currentBlock(object):
 
     def add_transaction(self, userid, vehicle_no, address):
         if (len(self.transactions)< TRANSACTION_LIMIT):
-            self.transactions.append({ 'userid': userid, 'vehicle_no': vehicle_no, 'address': address})
+            self.transactions.append({ 'userid': userid, 'vehicle_no': vehicle_no, 'address': address, 'features': None, 'review':[]})
             if (len(self.transactions) == TRANSACTION_LIMIT):
                 self.addBlock()
         else:
