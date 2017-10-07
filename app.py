@@ -3,9 +3,9 @@ from pymongo import MongoClient
 
 app = Flask(__name__)
 
-CONNECTION = 'mongodb://sumedh:block-shop@ds113435.mlab.com:13435/block-shop'
+CONNECTION = 'mongodb://blockshop:blockshop@ds113445.mlab.com:13445/blockshop'
 client = MongoClient(CONNECTION)
-db = client.block-shop
+db = client.blockshop
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -22,7 +22,7 @@ def newTransaction():
     """
     return 'new transaction', 200
 
-@app.route('/')
+# @app.route('/')
 
 if __name__ == "__main__":
     app.run(debug=True)
