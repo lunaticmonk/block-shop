@@ -9,8 +9,7 @@ client = MongoClient(CONNECTION)
 db = client.blockshop
 TRANSACTION_LIMIT = 2
 ORDER_ID = 1000
-
-
+REVIEW_REQUIRED = 2
 
 class Blockchain(object):
     def __init__(self):
@@ -57,9 +56,48 @@ class currentBlock(object):
         else:
             print 'Please Wait'
 
+class current_Transactions(object):
+    def __init__(self):
+        self.transaction_dict = {}
+
+    def add_transaction(self,ORDER_ID,transaction):
+        self.transaction_dict[ORDER_ID] = transaction
+
+class Transaction(object):
+    def __init__(self,user_id,vehicle_no,address):
+        global ORDER_ID
+        self.order_id = ORDER_ID
+        self.seller_id = user_id
+        self.vehicle_no = vehicle_no
+        self.address = address
+        self.features = None
+        self.review_by = []
+        self.review_no = 0
+        self.verified = False
+        ORDER_ID += 1
+
+    def check_verification(self):
+        if self.review_no == REVIEW_REQUIRED:
+            self.verified = True
+            currentBlock.add_transaction(self)
+            current_transactions.remove(self.order_id)
+
+    def review_true(self,user_id):
+        self.review_by.append(user_id)
+        self.review_no += 1
+        self.check_verification()
+
+    def review_false(self):
+        self.features = None
+
+    def add_feature(self,features):
+        self.features = features
+
+
 # global vars
 
 currentblock = currentBlock()
+current_transactions = current_Transactions()
 
 # Routes
 
@@ -91,6 +129,7 @@ def review():
             currentblock.addBlock()
         return redirect(url_for('index'))
 
+
 @app.route('/transactions/new', methods=['GET', 'POST'])
 def newTransaction():
     """
@@ -103,7 +142,8 @@ def newTransaction():
         userid = request.form['id']
         vehicle_no = request.form['vehicle_no']
         address = request.form['address']
-        currentblock.add_transaction(userid,vehicle_no,address)
+        temp = Transaction(userid,vehicle_no,address)
+        current_transactions.add_transaction(temp.order_id,temp)
         return redirect(url_for('index'))
     return 'new transaction', 200
 
