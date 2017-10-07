@@ -8,7 +8,8 @@
   <body class="jumbotron">
     <div class="container">
     <p>{{current_no}}</p>
-      <button type="newBtn" class="primary btn"><a href="{{url_for('newTransaction')}}">New Transaction</a></button>
+      <button type="button" class="btn-default btn"><a href="{{url_for('newTransaction')}}">New Transaction</a></button>
+      <button type="button" name="reviewBtn" class="btn btn-default"><a href="{{url_for('review')}}">Review</a></button>
     </div>
   </body>
 </html>

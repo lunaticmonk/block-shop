@@ -66,13 +66,19 @@ def index():
     return render_template('index.html', current_no= len(currentblock.transactions)), 200
     # return 'success', 200
 
-@app.route('/mine', methods=['GET', 'POST'])
-def mine():
-    return 'mine here', 200
+@app.route('/review', methods=['GET', 'POST'])
+def review():
+    tobereviewed = []
+    for item in currentblock.transactions:
+        if item['features'] is not None:
+            tobereviewed.append(item)
+        else:
+            pass
+    return render_template('review.html', tobereviewed = tobereviewed)
 
 # @app.route('/review_transaction', methods=['GET', 'POST'])
 # def review():
-    # for item in currentBlock.transactions
+#     for item in currentBlock.transactions
 
 @app.route('/transactions/new', methods=['GET', 'POST'])
 def newTransaction():
