@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,redirect,url_for
 from pymongo import MongoClient
 import time
 
@@ -7,6 +7,7 @@ app = Flask(__name__)
 CONNECTION = 'mongodb://blockshop:blockshop@ds113445.mlab.com:13445/blockshop'
 client = MongoClient(CONNECTION)
 db = client.blockshop
+TRANSACTION_LIMIT = 2
 
 
 class Blockchain(object):
@@ -34,33 +35,35 @@ class Blockchain(object):
 
 class currentBlock(object):
     def __init__(self):
-        self.numberOfTransaction = 0
         self.index = db.blockchain.count()
         self.transactions = []
 
-    def addBlock(self):
-        transactions = self.transactions
-        index = db.blockchain.count() + 1
-        timestamp = time.time()
-        db.blockchain.insert_one({ 'transactions': transactions, 'index': index, 'timestamp': timestamp})
 
+    def addBlock(self):
+        print 'adding block...'
+        index = db.blockchain.count()
+        timestamp = time.time()
+        db.blockchain.insert_one({ 'transactions': self.transactions, 'index': index, 'timestamp': timestamp})
+        self.transactions = []
 
     def add_transaction(self, userid, vehicle_no, address):
-        if (self.numberOfTransaction < 5):
+        if (len(self.transactions)< TRANSACTION_LIMIT):
             self.transactions.append({ 'userid': userid, 'vehicle_no': vehicle_no, 'address': address})
-            self.numberOfTransaction += 1
+            if (len(self.transactions) == TRANSACTION_LIMIT):
+                self.addBlock()
         else:
-            self.addBlock(currentBlock)
+            print 'limit exceeded..'
+
 # global vars
 
-currentBlock = currentBlock()
+currentblock = currentBlock()
 
 # Routes
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # self.currentBlock = currentBlock()
-    return render_template('index.html'), 200
+    return render_template('index.html', current_no= len(currentblock.transactions)), 200
     # return 'success', 200
 
 @app.route('/mine', methods=['GET', 'POST'])
@@ -83,12 +86,8 @@ def newTransaction():
         userid = request.form['id']
         vehicle_no = request.form['vehicle_no']
         address = request.form['address']
-        return render_template('index.html')
-    # newT = {
-    #     "prop1": 1,
-    #     "prop2": 2
-    # }
-    # db.transaction.insert_one(newT)
+        currentblock.add_transaction(userid,vehicle_no,address)
+        return redirect(url_for('index'))
     return 'new transaction', 200
 
 @app.route('/chain')
