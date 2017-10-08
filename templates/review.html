@@ -5,11 +5,23 @@
     <title></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
-  <body>
-    <ul class="list-group">
-      {% for item in tobereviewed %}
-      <li class="list-group-item">{{item}}</li>
-      {% endfor %}
-    </ul>
+  <body class="jumbotron">
+      <div class="container">
+          <h3>Features</h3>
+          <ul class="list-group">
+            {% for item in trans.features.items() %}
+            <li class="list-group-item">{{item[0]}} &nbsp; &nbsp;{{item[1]}}</li>
+            {% endfor %}
+            <form class="container" action="{{url_for('type')}}" method="POST">
+                <div class="">
+                  Are the details true: <br>
+                  <input type="radio" id="status" name="status" value="1">Yes <br>
+                  <input type="radio" id="status" name="status" value="0">No
+                </div>
+                    <input type="text" name="order_id" value="{{trans.order_id}}" style="display: hidden">
+               <button type="submit" name="button" class="btn btn-primary">Submit</button>
+            </form>
+          </ul>          
+      </div>
   </body>
 </html>

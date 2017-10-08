@@ -38,8 +38,6 @@ class currentBlock(object):
     def __init__(self):
         self.index = db.blockchain.count()
         self.transactions = []
-        self.verified = 0
-
 
     def addBlock(self):
         print 'adding block...'
@@ -48,13 +46,12 @@ class currentBlock(object):
         db.blockchain.insert_one({ 'transactions': self.transactions, 'index': index, 'timestamp': timestamp})
         self.transactions = []
 
-    def add_transaction(self, userid, vehicle_no, address):
-        global ORDER_ID
-        if (len(self.transactions)< TRANSACTION_LIMIT):
-            self.transactions.append({ 'order_id':ORDER_ID,'userid': userid, 'vehicle_no': vehicle_no, 'address': address, 'features': None, 'review':[]})
-            ORDER_ID += 1
-        else:
-            print 'Please Wait'
+    def add_transaction(self, trans):
+        self.transactions.append(trans)
+        del current_transactions.transaction_dict[trans.order_id]
+        if len(self.transactions) == TRANSACTION_LIMIT:
+            self.addBlock()
+
 
 class current_Transactions(object):
     def __init__(self):
@@ -62,6 +59,12 @@ class current_Transactions(object):
 
     def add_transaction(self,ORDER_ID,transaction):
         self.transaction_dict[ORDER_ID] = transaction
+
+    # def remove_trans(self,order_id):
+    #     print 'removing'
+    #     print type(order_id)
+    #     del current_transactions.transaction_dict[int(order_id)]
+    #     print 'removed'
 
 class Transaction(object):
     def __init__(self,user_id,vehicle_no,address):
@@ -71,28 +74,34 @@ class Transaction(object):
         self.vehicle_no = vehicle_no
         self.address = address
         self.features = None
-        self.review_by = []
+        # self.review_by = []
         self.review_no = 0
         self.verified = False
         ORDER_ID += 1
 
     def check_verification(self):
         if self.review_no == REVIEW_REQUIRED:
+            print 'equaled'
             self.verified = True
-            currentBlock.add_transaction(self)
-            current_transactions.remove(self.order_id)
+            currentblock.add_transaction(self)
+            del current_transactions.transaction_dict[int(self.order_id)]
+        else:
+            pass
 
-    def review_true(self,user_id):
-        self.review_by.append(user_id)
+    def review_true(self):
+        # self.review_by.append(user_id)
         self.review_no += 1
         self.check_verification()
 
     def review_false(self):
         self.features = None
+        self.review_no = 0
 
     def add_feature(self,features):
         self.features = features
 
+    def __str__(self):
+        return str([self.order_id,self.vehicle_no,self.address])
 
 # global vars
 
@@ -104,30 +113,33 @@ current_transactions = current_Transactions()
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # self.currentBlock = currentBlock()
-    return render_template('index.html', current_trans= currentblock.transactions), 200
+    return render_template('index.html', current_trans= current_transactions.transaction_dict), 200
     # return 'success', 200
 
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     if request.method == 'GET':
-        tobereviewed = []
-        for item in currentblock.transactions:
-            if item['features'] is not None:
-                tobereviewed.append(item)
-            else:
-                return render_template('survey.html', order_id=request.args.get('id'))
+        transaction = current_transactions.transaction_dict[int(request.args.get('id'))]
+        if transaction.features is not None:
+            return render_template('review.html', trans = transaction )
+        else:
+            return render_template('survey.html', order_id=request.args.get('id'))
 
-        return render_template('review.html', tobereviewed = tobereviewed)
     if request.method == 'POST':
         order_id = request.form['order_id']
         features = {'ABS':request.form['abs'],'power_steering':request.form['powersteering'], 'power_window': request.form['powerwindow'], 'ac': request.form['ac']}
-        for i,item in enumerate(currentblock.transactions):
-            if str(item['order_id']) == str(order_id):
-                currentblock.transactions[i]['features']= features
-                currentblock.verified += 1
-        if currentblock.verified == TRANSACTION_LIMIT:
-            currentblock.addBlock()
+        current_transactions.transaction_dict[int(order_id)].features = features
         return redirect(url_for('index'))
+
+@app.route('/review/type',methods=['POST'])
+def type():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        if str(request.form['status'])=='1':
+            current_transactions.transaction_dict[int(order_id)].review_true()
+        else:
+            current_transactions.transaction_dict[int(order_id)].review_false()
+    return redirect(url_for('index'))
 
 
 @app.route('/transactions/new', methods=['GET', 'POST'])
