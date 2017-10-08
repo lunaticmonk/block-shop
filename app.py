@@ -7,9 +7,9 @@ app = Flask(__name__)
 CONNECTION = 'mongodb://blockshop:blockshop@ds113445.mlab.com:13445/blockshop'
 client = MongoClient(CONNECTION)
 db = client.blockshop
-TRANSACTION_LIMIT = 1
+TRANSACTION_LIMIT = 2
 ORDER_ID = 1000
-MIN_REVIEW_REQUIRED = 3
+MIN_REVIEW_REQUIRED = 5
 
 
 
@@ -43,15 +43,14 @@ class block_currency(object):
         self.total = 100
         user_id = 101
         for ele in db.user.find():
-            db.user.update({"_id":ele["_id"]},{"user_id":user_id,"currency": 0,"reputation":100})
+            db.user.update({"_id":ele["_id"]},{"user_id":user_id,"currency": 0,"reputation":50})
             user_id += 1
 
     def intial_distribute(self):
         total_users = db.user.count()
         individual_currency = self.initial/float(total_users)
         for ele in db.user.find():
-            new_currency = ele['currency'] + individual_currency
-            db.user.update({"_id":ele["_id"]},{"$set":{"currency": new_currency}})
+            db.user.update({"_id":ele["_id"]},{"$inc": {"currency":individual_currency}})
 
     def distribute_reward(self):
         self.total += self.generated
@@ -127,9 +126,13 @@ class Transaction(object):
         if (self.positive_response+self.negative_response) >= MIN_REVIEW_REQUIRED:
             print "validation done..."
             if self.positive_response>self.negative_response:
+                print "hello"
+                reputation.distribute_reputation(self.pos_review_by,self.neg_review_by, majority_positive=True)
+                print "done"
                 self.verified = True
                 currentblock.add_transaction(self)
             else:
+                reputation.distribute_reputation(self.pos_review_by,self.neg_review_by,majority_positive=False)
                 self.features = None
                 self.pos_review_by = []
                 self.neg_review_by = []
@@ -141,9 +144,7 @@ class Transaction(object):
         # self.review_by.append(user_id)
         self.positive_response += 1
         self.pos_review_by.append(user_id)
-        print "hello"
         self.check_verification()
-        print "done"
 
     def review_false(self,user_id):
         self.negative_response += 1
@@ -157,13 +158,39 @@ class Transaction(object):
         return str([self.order_id,self.seller_id,self.positive_response,self.negative_response])
 
 
+class Reputation(object):
+    def __init__(self):
+        self.total_reputation = db.user.count()* 50
+
+    def distribute_reputation(self,pos_review_by,neg_review_by,majority_positive):
+        len_pos_review_by = len(pos_review_by)
+        len_neg_review_by = len(neg_review_by)
+        print len_neg_review_by
+        print len_pos_review_by
+        if majority_positive == True:
+            increment = float(len_neg_review_by)/float(len_pos_review_by)
+            print increment
+            for user in pos_review_by:
+                db.user.update({"user_id":int(user)},{"$inc":{"reputation":increment}})
+            for user in neg_review_by:
+                db.user.update({"user_id":int(user)},{"$inc":{"reputation":-1}})
+        else:
+            increment = float(len_pos_review_by)/float(len_neg_review_by)
+            print increment
+            for user in neg_review_by:
+                db.user.update({"user_id":user},{"$inc":{"reputation":increment}})
+            for user in pos_review_by:
+                db.user.update({"user_id":user},{"$inc":{"reputation":-1}})
+
+
+
 # global vars
 
 currentblock = currentBlock()
 current_transactions = current_Transactions()
 currency = block_currency()
 currency.intial_distribute()
-
+reputation = Reputation()
 # Routes
 
 @app.route('/', methods=['GET', 'POST'])
