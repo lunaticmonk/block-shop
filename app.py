@@ -13,29 +13,6 @@ MIN_REVIEW_REQUIRED = 5
 
 
 
-class Blockchain(object):
-    def __init__(self):
-        self.chain = []
-        self.current_transactions = []
-
-    def new_block(self):
-        # Creates a new Block and adds it to the chain
-        pass
-
-    def new_transaction(self):
-        # Adds a new transaction to the list of transactions
-        pass
-
-    @staticmethod
-    def hash(block):
-        # Hashes a Block
-        pass
-
-    @property
-    def last_block(self):
-        # Returns the last Block in the chain
-        pass
-
 class block_currency(object):
     def __init__(self):
         self.initial = 100
@@ -248,7 +225,10 @@ def newTransaction():
 
 @app.route('/chain')
 def chain():
-    return 'full chain', 200
+    blockchain = []
+    for item in db.blockchain.find():
+        blockchain.append({'index':item['index'],'timestamp':item['timestamp'],'transaction':item['transactions']})
+    return render_template('blockchain.html', block = blockchain)
 
 @app.route('/distribute')
 def distribute():
