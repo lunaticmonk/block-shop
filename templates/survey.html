@@ -4,9 +4,15 @@
     <meta charset="utf-8">
     <title>Survey</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style media="screen">
+      body {
+        background-color: #efefef;
+      }
+    </style>
   </head>
-  <body class="jumbotron">
-    <form class="container" action="{{url_for('review')}}" method="POST">
+  <body class="container">
+    <h1>Review of the entity/automobile</h1>
+    <form class="container" action="{{url_for('review')}}" method="POST" style="margin: 0 auto;">
       <div class="">
         ABS: <br>
         <input type="radio" name="abs" value="1">Yes <br>

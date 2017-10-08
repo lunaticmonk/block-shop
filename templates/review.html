@@ -3,18 +3,88 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Block Shop</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+      <meta name="viewport" content="width=device-width" />
+
+      <!-- Bootstrap core CSS     -->
+      <link href="{{url_for('static', filename = "assets/css/bootstrap.min.css")}}" rel="stylesheet" />
+
+      <!--  Material Dashboard CSS    -->
+      <link href="{{url_for('static', filename = "assets/css/material-dashboard.css")}}" rel="stylesheet"/>
+
+      <!--  CSS for Demo Purpose, don't include it in your project     -->
+      <!-- <link href="../assets/css/demo.css" rel="stylesheet" /> -->
+
+      <!--     Fonts and icons     -->
+      <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+      <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
   <body class="jumbotron">
-      <div class="container">
+    <div class="sidebar" data-color="purple" data-image="../assets/img/sidebar-1.jpg">
+    <!--
+          Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+          Tip 2: you can also add an image using data-image tag
+      -->
+
+    <div class="logo">
+      <a href="/" class="simple-text">
+        Block Shop
+      </a>
+    </div>
+
+      <div class="sidebar-wrapper">
+            <ul class="nav">
+                <li class="">
+                    <a href="dashboard.html">
+                        <i class="material-icons">dashboard</i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li  class="active">
+                  <a href="#">
+                    <i class="material-icons">content_paste</i>
+                    <p>Review</p>
+                  </a>
+                </li>
+                <li>
+                    <a href="user.html">
+                        <i class="material-icons">person</i>
+                        <p>User Profile</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{url_for('cur_distribute')}}">
+                        <i class="material-icons">bubble_chart</i>
+                        <p>Distribution</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{url_for('index')}}">
+                        <i class="material-icons">location_on</i>
+                        <p>Survey</p>
+                    </a>
+                </li>
+            </ul>
+      </div>
+    </div>
+      <div class="container" style="margin-left: 25%; max-width: 60%;">
           <h3>Features</h3>
           <ul class="list-group">
             {% for item in trans.features.items() %}
             <li class="list-group-item">{{item[0]}} &nbsp; &nbsp;{{item[1]}}</li>
             {% endfor %}
-            <form class="container" action="{{url_for('type')}}" method="POST">
+            <form class="container" action="{{url_for('type')}}" method="POST"><br>
                 <div class="">
-                  Are the details true: <br>
+                  Seems okay? <br>
                   <input type="radio" id="status" name="status" value="1">Yes <br>
                   <input type="radio" id="status" name="status" value="0">No
                 </div>
