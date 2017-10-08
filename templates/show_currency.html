@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body class="jumbotron">
+    <div class="container">
+        <table>
+        <tr>
+            <th>user_id</th>
+            <th>currency</th>
+        </tr>
+        {% for item in currency %}
+        <tr>
+            <td>
+                {{item['user_id']}}
+            </td>
+            <td>
+                {{item['currency']}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </ul>
+</div>
+</body>
+</html>

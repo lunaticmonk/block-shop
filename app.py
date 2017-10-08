@@ -11,10 +11,6 @@ TRANSACTION_LIMIT = 2
 ORDER_ID = 1000
 REVIEW_REQUIRED = 2
 
-class user(object):
-    def __init__(self):
-        self.user_id = 0
-        self.currency = 0
 
 
 class Blockchain(object):
@@ -43,18 +39,42 @@ class Blockchain(object):
 class block_currency(object):
     def __init__(self):
         self.initial = 100
+        self.generated = 5.00
         self.total = 100
+        user_id = 101
+        for ele in db.user.find():
+            db.user.update({"_id":ele["_id"]},{"user_id":user_id,"currency": 0})
+            user_id += 1
 
-    def create_currency(self):
-        self.generated = 5
-        self.total = self.initial + self.generated
+    def intial_distribute(self):
+        total_users = db.user.count()
+        individual_currency = self.initial/float(total_users)
+        for ele in db.user.find():
+            new_currency = ele['currency'] + individual_currency
+            db.user.update({"_id":ele["_id"]},{"$set":{"currency": new_currency}})
 
-    def distribute(self):
-        pass
+    def distribute_reward(self):
+        self.total += self.generated
+        distribution = TRANSACTION_LIMIT * (REVIEW_REQUIRED + 1)
+        individual_addition = float(self.generated) / float(distribution)
+        print individual_addition
+        last_block_id = db.blockchain.count()-1
+        print last_block_id
+        last_block = db.blockchain.find_one({"index":last_block_id})
+        print last_block
+        for ele in last_block['transactions']:
+            user_list = ele['review_by']
+            for user_id in user_list:
+                db.user.update({"user_id":int(user_id)},{"$inc":{"currency":individual_addition}})
+
+
+
+
 
 class currentBlock(object):
     def __init__(self):
         self.transactions = []
+        self.last_index = db.blockchain.count()-1
 
     def addBlock(self):
         print 'adding block...'
@@ -64,8 +84,9 @@ class currentBlock(object):
         print temp
         db.blockchain.insert_one(temp)
         print "sucessfully added to db"
-        currency.create_currency()
+        currency.distribute_reward()
         self.transactions = []
+        self.last_index = index
 
     def add_transaction(self, trans):
         self.transactions.append({'order_id':trans.order_id,'seller_id':trans.seller_id,'address':trans.address,'review_by':trans.review_by})
@@ -118,7 +139,7 @@ class Transaction(object):
         self.features = features
 
     def __str__(self):
-        return str([self.order_id,self.seller_id,self.address])
+        return str({})
 
 
 # global vars
@@ -126,6 +147,7 @@ class Transaction(object):
 currentblock = currentBlock()
 current_transactions = current_Transactions()
 currency = block_currency()
+currency.intial_distribute()
 
 # Routes
 
@@ -184,6 +206,20 @@ def newTransaction():
 def chain():
     return 'full chain', 200
 
+@app.route('/distribute')
+def distributr():
+    user_list = [101,102,103]
+    individual_addition = 0.33
+    for user_id in user_list:
+        db.user.update({"user_id":user_id},{"$inc":{"currency":individual_addition}})
+    return 'success',200
+
+@app.route('/currency_distribution')
+def cur_distribute():
+    user_with_money = []
+    for ele in db.user.find():
+        user_with_money.append({'user_id':ele['user_id'],'currency':ele['currency']})
+    return render_template('show_currency.html', currency=user_with_money)
 # @app.route('/')
 
 if __name__ == "__main__":
