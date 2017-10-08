@@ -11,6 +11,12 @@ TRANSACTION_LIMIT = 2
 ORDER_ID = 1000
 REVIEW_REQUIRED = 2
 
+class user(object):
+    def __init__(self):
+        self.user_id = 0
+        self.currency = 0
+
+
 class Blockchain(object):
     def __init__(self):
         self.chain = []
@@ -34,6 +40,18 @@ class Blockchain(object):
         # Returns the last Block in the chain
         pass
 
+class block_currency(object):
+    def __init__(self):
+        self.initial = 100
+        self.total = 100
+
+    def create_currency(self):
+        self.generated = 5
+        self.total = self.initial + self.generated
+
+    def distribute(self):
+        pass
+
 class currentBlock(object):
     def __init__(self):
         self.transactions = []
@@ -46,15 +64,11 @@ class currentBlock(object):
         print temp
         db.blockchain.insert_one(temp)
         print "sucessfully added to db"
+        currency.create_currency()
         self.transactions = []
 
     def add_transaction(self, trans):
-        # print trans.
-        # print type(order_id)
-        # print trans.order_id
-        print self.transactions
-
-        self.transactions.append({'order_id':trans.order_id,'seller_id':trans.seller_id,'address':trans.address})
+        self.transactions.append({'order_id':trans.order_id,'seller_id':trans.seller_id,'address':trans.address,'review_by':trans.review_by})
         print self.transactions
         del current_transactions.transaction_dict[trans.order_id]
         if len(self.transactions) == TRANSACTION_LIMIT:
@@ -68,11 +82,6 @@ class current_Transactions(object):
     def add_transaction(self,ORDER_ID,transaction):
         self.transaction_dict[ORDER_ID] = transaction
 
-    # def remove_trans(self,order_id):
-    #     print 'removing'
-    #     print type(order_id)
-    #     del current_transactions.transaction_dict[int(order_id)]
-    #     print 'removed'
 
 class Transaction(object):
     def __init__(self,user_id,vehicle_no,address):
@@ -82,7 +91,7 @@ class Transaction(object):
         self.vehicle_no = vehicle_no
         self.address = address
         self.features = None
-        # self.review_by = []
+        self.review_by = []
         self.review_no = 0
         self.verified = False
         ORDER_ID += 1
@@ -94,14 +103,16 @@ class Transaction(object):
         else:
             pass
 
-    def review_true(self):
+    def review_true(self,user_id):
         # self.review_by.append(user_id)
         self.review_no += 1
+        self.review_by.append(user_id)
         self.check_verification()
 
     def review_false(self):
         self.features = None
         self.review_no = 0
+        self.review_by = []
 
     def add_feature(self,features):
         self.features = features
@@ -114,12 +125,12 @@ class Transaction(object):
 
 currentblock = currentBlock()
 current_transactions = current_Transactions()
+currency = block_currency()
 
 # Routes
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # self.currentBlock = currentBlock()
     return render_template('index.html', current_trans= current_transactions.transaction_dict), 200
     # return 'success', 200
 
@@ -134,16 +145,19 @@ def review():
 
     if request.method == 'POST':
         order_id = request.form['order_id']
+        feature_user_id = request.form['user_id']
         features = {'ABS':request.form['abs'],'power_steering':request.form['powersteering'], 'power_window': request.form['powerwindow'], 'ac': request.form['ac']}
         current_transactions.transaction_dict[int(order_id)].features = features
+        current_transactions.transaction_dict[int(order_id)].review_by.append(feature_user_id)
         return redirect(url_for('index'))
 
 @app.route('/review/type',methods=['POST'])
 def type():
     if request.method == 'POST':
         order_id = request.form['order_id']
+        user_id = request.form['user_id']
         if str(request.form['status'])=='1':
-            current_transactions.transaction_dict[int(order_id)].review_true()
+            current_transactions.transaction_dict[int(order_id)].review_true(user_id)
         else:
             current_transactions.transaction_dict[int(order_id)].review_false()
     return redirect(url_for('index'))
