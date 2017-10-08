@@ -9,16 +9,20 @@
     <div class="container">
         <table>
         <tr>
-            <th>user_id</th>
-            <th>currency</th>
+            <th>User_id</th>
+            <th>Currency</th>
+            <th>Reputation</th>
         </tr>
-        {% for item in currency %}
+        {% for item in distribution %}
         <tr>
             <td>
                 {{item['user_id']}}
             </td>
             <td>
                 {{item['currency']}}
+            </td>
+            <td>
+                {{item['reputation']}}
             </td>
         </tr>
         {% endfor %}

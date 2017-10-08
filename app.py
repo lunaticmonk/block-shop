@@ -43,7 +43,7 @@ class block_currency(object):
         self.total = 100
         user_id = 101
         for ele in db.user.find():
-            db.user.update({"_id":ele["_id"]},{"user_id":user_id,"currency": 0})
+            db.user.update({"_id":ele["_id"]},{"user_id":user_id,"currency": 0,"reputation":100})
             user_id += 1
 
     def intial_distribute(self):
@@ -70,7 +70,6 @@ class block_currency(object):
             user_list = ele['pos_review_by']
             for user_id in user_list:
                 db.user.update({"user_id":int(user_id)},{"$inc":{"currency":individual_addition}})
-
 
 
 
@@ -228,12 +227,12 @@ def chain():
 def distribute():
     return 'success',200
 
-@app.route('/currency_distribution')
+@app.route('/current_distribution')
 def cur_distribute():
-    user_with_money = []
+    user_with_distribution = []
     for ele in db.user.find():
-        user_with_money.append({'user_id':ele['user_id'],'currency':ele['currency']})
-    return render_template('show_currency.html', currency=user_with_money)
+        user_with_distribution.append({'user_id':ele['user_id'],'currency':ele['currency'],'reputation':ele['reputation']})
+    return render_template('show_distribution.html', distribution=user_with_distribution)
 # @app.route('/')
 
 if __name__ == "__main__":
