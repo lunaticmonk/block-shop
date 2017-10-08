@@ -225,11 +225,7 @@ def chain():
     return 'full chain', 200
 
 @app.route('/distribute')
-def distributr():
-    user_list = [101,102,103]
-    individual_addition = 0.33
-    for user_id in user_list:
-        db.user.update({"user_id":user_id},{"$inc":{"currency":individual_addition}})
+def distribute():
     return 'success',200
 
 @app.route('/currency_distribution')
