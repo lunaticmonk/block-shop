@@ -9,7 +9,7 @@ client = MongoClient(CONNECTION)
 db = client.blockshop
 TRANSACTION_LIMIT = 2
 ORDER_ID = 1000
-MIN_REVIEW_REQUIRED = 5
+MIN_REVIEW_REQUIRED = 3
 
 
 
