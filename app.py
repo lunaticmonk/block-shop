@@ -36,18 +36,26 @@ class Blockchain(object):
 
 class currentBlock(object):
     def __init__(self):
-        self.index = db.blockchain.count()
         self.transactions = []
 
     def addBlock(self):
         print 'adding block...'
         index = db.blockchain.count()
         timestamp = time.time()
-        db.blockchain.insert_one({ 'transactions': self.transactions, 'index': index, 'timestamp': timestamp})
+        temp = { 'transactions': self.transactions, 'index': index, 'timestamp': timestamp}
+        print temp
+        db.blockchain.insert_one(temp)
+        print "sucessfully added to db"
         self.transactions = []
 
     def add_transaction(self, trans):
-        self.transactions.append(trans)
+        # print trans.
+        # print type(order_id)
+        # print trans.order_id
+        print self.transactions
+
+        self.transactions.append({'order_id':trans.order_id,'seller_id':trans.seller_id,'address':trans.address})
+        print self.transactions
         del current_transactions.transaction_dict[trans.order_id]
         if len(self.transactions) == TRANSACTION_LIMIT:
             self.addBlock()
@@ -81,10 +89,8 @@ class Transaction(object):
 
     def check_verification(self):
         if self.review_no == REVIEW_REQUIRED:
-            print 'equaled'
             self.verified = True
             currentblock.add_transaction(self)
-            del current_transactions.transaction_dict[int(self.order_id)]
         else:
             pass
 
@@ -101,7 +107,8 @@ class Transaction(object):
         self.features = features
 
     def __str__(self):
-        return str([self.order_id,self.vehicle_no,self.address])
+        return str([self.order_id,self.seller_id,self.address])
+
 
 # global vars
 
